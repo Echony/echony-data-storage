@@ -1,6 +1,6 @@
 import os
 import json
-import mysql.connector
+import pymysql
 import pandas as pd
 from datetime import datetime, timedelta
 import pytz
@@ -8,13 +8,12 @@ import pytz
 def connect_to_database():
     """连接到MySQL数据库"""
     try:
-        connection = mysql.connector.connect(
+        connection = pymysql.connect(
             host=os.getenv('DB_HOST'),
             port=int(os.getenv('DB_PORT')),
             user=os.getenv('DB_USER'),
             password=os.getenv('DB_PASSWORD'),
-            database=os.getenv('DB_NAME'),
-            ssl_mode='REQUIRED'
+            database=os.getenv('DB_NAME')
         )
         return connection
     except Exception as e:

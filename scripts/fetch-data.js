@@ -39,7 +39,10 @@ async function main() {
         port: process.env.DB_PORT,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME
+        database: process.env.DB_NAME,
+        ssl: {
+            rejectUnauthorized: true
+        }
     });
 
     try {
@@ -54,7 +57,7 @@ async function main() {
         // 获取最新数据
         console.log('Fetching data from database...');
         const [rows] = await connection.execute(
-            'SELECT * FROM material_data WHERE record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ORDER BY record_date DESC'
+            'SELECT d.*, i.current_status FROM material_data d JOIN material_info i ON d.id = i.id WHERE d.record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ORDER BY d.record_date DESC'
         );
         console.log(`Found ${rows.length} records`);
 
@@ -64,11 +67,13 @@ async function main() {
             if (!groupedData[row.id]) {
                 groupedData[row.id] = {
                     id: row.id,
+                    current_status: row.current_status,  // 添加当前状态
                     data: []
                 };
             }
             groupedData[row.id].data.push({
                 record_date: formatChineseDateTime(row.record_date),
+                status: row.status,  // 添加记录时的状态
                 roi: formatNumber(row.roi),
                 overall_impressions: row.overall_impressions,
                 overall_clicks: row.overall_clicks,

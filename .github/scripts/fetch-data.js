@@ -64,20 +64,13 @@ async function main() {
         // 按ID分组数据
         const groupedData = {};
         rows.forEach(row => {
-            // 确保使用正确的字段名 'id' 而不是 'ID'
-            const materialId = row.id;
-            if (!materialId) {
-                console.warn('Found row with undefined id:', row);
-                return;
-            }
-
-            if (!groupedData[materialId]) {
-                groupedData[materialId] = {
-                    id: materialId,
+            if (!groupedData[row.id]) {  // 改为小写的 id
+                groupedData[row.id] = {   // 改为小写的 id
+                    id: row.id,           // 改为小写的 id
                     data: []
                 };
             }
-            groupedData[materialId].data.push({
+            groupedData[row.id].data.push({  // 改为小写的 id
                 record_date: formatChineseDateTime(row.record_date),
                 roi: formatNumber(row.roi),
                 overall_impressions: row.overall_impressions,
@@ -92,12 +85,6 @@ async function main() {
                 cost_per_order: formatNumber(row.cost_per_order)
             });
         });
-
-        // 检查是否有数据被处理
-        if (Object.keys(groupedData).length === 0) {
-            console.warn('No valid data found to process');
-            return;
-        }
 
         // 更新每个ID的数据文件
         console.log('Updating individual ID files...');

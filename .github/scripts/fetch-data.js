@@ -10,17 +10,23 @@ async function ensureDirectoryExists(dirPath) {
     }
 }
 
-// 添加格式化数字的辅助函数
+// 格式化数字为两位小数
 function formatNumber(num) {
     return Number(parseFloat(num).toFixed(2));
 }
 
-// 添加时间转换为中国时区的辅助函数
-function convertToChinaTime(date) {
-    return new Date(date).toLocaleString('zh-CN', {
-        timeZone: 'Asia/Shanghai',
-        hour12: false
-    }).replace(/\//g, '-');
+// 格式化时间为 "月，日，时，分" 格式
+function formatChineseTime(date) {
+    const d = new Date(date);
+    // 转换为中国时区
+    const chinaDate = new Date(d.getTime() + (8 * 60 * 60 * 1000));
+    
+    const month = chinaDate.getMonth() + 1; // getMonth() 返回 0-11
+    const day = chinaDate.getDate();
+    const hours = chinaDate.getHours();
+    const minutes = chinaDate.getMinutes();
+    
+    return `${month}，${day}，${hours}，${minutes}`;
 }
 
 async function main() {
@@ -32,6 +38,7 @@ async function main() {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME
+        }
     });
 
     try {
@@ -50,14 +57,15 @@ async function main() {
 
         const groupedData = {};
         rows.forEach(row => {
-            if (!groupedData[row.ID]) {
-                groupedData[row.ID] = {
-                    id: row.ID,
+            const id = row.ID; // 使用大写的ID，与数据库字段保持一致
+            if (!groupedData[id]) {
+                groupedData[id] = {
+                    id: id,
                     data: []
                 };
             }
-            groupedData[row.ID].data.push({
-                record_date: convertToChinaTime(row.record_date),
+            groupedData[id].data.push({
+                record_date: formatChineseTime(row.record_date),
                 roi: formatNumber(row.roi),
                 overall_impressions: formatNumber(row.overall_impressions),
                 overall_clicks: formatNumber(row.overall_clicks),
@@ -74,16 +82,18 @@ async function main() {
 
         console.log('Updating individual ID files...');
         const updatePromises = Object.entries(groupedData).map(async ([id, data]) => {
-            const filePath = path.join(idsDir, `${id}.json`);
-            await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-            console.log(`Updated file for ID: ${id}`);
+            if (id && id !== 'undefined') {  // 添加检查确保ID有效
+                const filePath = path.join(idsDir, `${id}.json`);
+                await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+                console.log(`Updated file for ID: ${id}`);
+            }
         });
         await Promise.all(updatePromises);
 
         console.log('Updating index file...');
         const indexData = {
-            available_ids: Object.keys(groupedData),
-            last_updated: convertToChinaTime(new Date())
+            available_ids: Object.keys(groupedData).filter(id => id && id !== 'undefined'),
+            last_updated: formatChineseTime(new Date())
         };
         
         await fs.writeFile(

@@ -67,12 +67,18 @@ async function main() {
         // 按ID分组数据
         const groupedData = {};
         rows.forEach(row => {
+            if (!row.ID) {
+                console.warn(`Warning: row with missing ID found, skipping this row.`);
+                return; // 跳过没有ID的数据行
+            }
+
             if (!groupedData[row.ID]) {
                 groupedData[row.ID] = {
                     id: row.ID,
                     data: []
                 };
             }
+
             groupedData[row.ID].data.push({
                 record_date: row.record_date,
                 roi: formatData(row.roi),
@@ -92,6 +98,10 @@ async function main() {
         // 更新每个ID的数据文件
         console.log('Updating individual ID files...');
         const updatePromises = Object.entries(groupedData).map(async ([id, data]) => {
+            if (!id) {
+                console.warn(`Warning: Skipping file write for undefined ID.`);
+                return; // 跳过没有有效ID的数据
+            }
             const filePath = path.join(idsDir, `${id}.json`);
             await fs.writeFile(filePath, JSON.stringify(data, null, 2));
             console.log(`Updated file for ID: ${id}`);

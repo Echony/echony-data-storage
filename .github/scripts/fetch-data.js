@@ -6,26 +6,26 @@ async function ensureDirectoryExists(dirPath) {
     try {
         await fs.access(dirPath);
     } catch (error) {
-        // 如果目录不存在，创建它
         await fs.mkdir(dirPath, { recursive: true });
     }
 }
 
-async function formatChineseTime(date) {
-    const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000)); // 转换为中国时区
-    const month = chinaTime.getUTCMonth() + 1;
-    const day = chinaTime.getUTCDate();
-    const hour = chinaTime.getUTCHours();
-    const minute = chinaTime.getUTCMinutes();
-    
-    return `${month}月${day}日${hour}时${minute}分`;
+// 添加格式化数字的辅助函数
+function formatNumber(num) {
+    return Number(parseFloat(num).toFixed(2));
+}
+
+// 添加时间转换为中国时区的辅助函数
+function convertToChinaTime(date) {
+    return new Date(date).toLocaleString('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        hour12: false
+    }).replace(/\//g, '-');
 }
 
 async function main() {
     console.log('Starting data fetch process...');
     
-    // 创建数据库连接
-    console.log('Connecting to database...');
     const connection = await mysql.createConnection({
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
@@ -33,23 +33,23 @@ async function main() {
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME
     });
+
     try {
-        // 确保基础目录结构存在
         const dataDir = path.join(process.cwd(), 'data');
         const idsDir = path.join(dataDir, 'ids');
         
         console.log('Creating directory structure...');
         await ensureDirectoryExists(dataDir);
         await ensureDirectoryExists(idsDir);
-        // 获取最新数据
+
         console.log('Fetching data from database...');
         const [rows] = await connection.execute(
             'SELECT * FROM material_data WHERE record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ORDER BY record_date DESC'
         );
         console.log(`Found ${rows.length} records`);
-        // 按ID分组数据
+
         const groupedData = {};
-        for (const row of rows) {
+        rows.forEach(row => {
             if (!groupedData[row.ID]) {
                 groupedData[row.ID] = {
                     id: row.ID,
@@ -57,21 +57,21 @@ async function main() {
                 };
             }
             groupedData[row.ID].data.push({
-                record_date: await formatChineseTime(new Date(row.record_date)),
-                roi: row.roi,
-                overall_impressions: row.overall_impressions,
-                overall_clicks: row.overall_clicks,
-                overall_ctr: row.overall_ctr,
-                overall_conversion_rate: row.overall_conversion_rate,
-                overall_orders: row.overall_orders,
-                overall_sales: row.overall_sales,
-                overall_spend: row.overall_spend,
-                spend_percentage: row.spend_percentage,
-                basic_spend: row.basic_spend,
-                cost_per_order: row.cost_per_order
+                record_date: convertToChinaTime(row.record_date),
+                roi: formatNumber(row.roi),
+                overall_impressions: formatNumber(row.overall_impressions),
+                overall_clicks: formatNumber(row.overall_clicks),
+                overall_ctr: formatNumber(row.overall_ctr),
+                overall_conversion_rate: formatNumber(row.overall_conversion_rate),
+                overall_orders: formatNumber(row.overall_orders),
+                overall_sales: formatNumber(row.overall_sales),
+                overall_spend: formatNumber(row.overall_spend),
+                spend_percentage: formatNumber(row.spend_percentage),
+                basic_spend: formatNumber(row.basic_spend),
+                cost_per_order: formatNumber(row.cost_per_order)
             });
-        }
-        // 更新每个ID的数据文件
+        });
+
         console.log('Updating individual ID files...');
         const updatePromises = Object.entries(groupedData).map(async ([id, data]) => {
             const filePath = path.join(idsDir, `${id}.json`);
@@ -79,11 +79,11 @@ async function main() {
             console.log(`Updated file for ID: ${id}`);
         });
         await Promise.all(updatePromises);
-        // 更新索引文件
+
         console.log('Updating index file...');
         const indexData = {
             available_ids: Object.keys(groupedData),
-            last_updated: await formatChineseTime(new Date())
+            last_updated: convertToChinaTime(new Date())
         };
         
         await fs.writeFile(

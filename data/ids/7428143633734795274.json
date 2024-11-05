@@ -1,0 +1,19 @@
+{
+  "id": "7428143633734795274",
+  "data": [
+    {
+      "record_date": "2024-11-04T09:36:42.000Z",
+      "roi": 2.0799999237060547,
+      "overall_impressions": 4738,
+      "overall_clicks": 169,
+      "overall_ctr": 0.0357000008225441,
+      "overall_conversion_rate": 0.0414000004529953,
+      "overall_orders": 7,
+      "overall_sales": 1911,
+      "overall_spend": 993.9199829101562,
+      "spend_percentage": 0.022199999541044235,
+      "basic_spend": 991.27001953125,
+      "cost_per_order": 141.99000549316406
+    }
+  ]
+}

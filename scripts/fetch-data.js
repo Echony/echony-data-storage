@@ -33,37 +33,55 @@ async function main() {
         await ensureDirectoryExists(dataDir);
         await ensureDirectoryExists(idsDir);
 
-        // 获取最新数据
-        console.log('Fetching data from database...');
-        const [rows] = await connection.execute(
-            'SELECT * FROM material_data WHERE record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ORDER BY record_date DESC'
+        // 获取所有活跃的素材ID和它们的当前状态
+        console.log('Fetching active materials...');
+        const [materials] = await connection.execute(
+            'SELECT id, current_status FROM material_info'
         );
 
-        console.log(`Found ${rows.length} records`);
+        // 获取最近24小时的数据记录
+        console.log('Fetching recent data from database...');
+        const [rows] = await connection.execute(`
+            SELECT 
+                d.*,
+                i.current_status
+            FROM material_data d
+            JOIN material_info i ON d.id = i.id
+            WHERE d.record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            ORDER BY d.record_date DESC
+        `);
+
+        console.log(`Found ${rows.length} records for ${materials.length} materials`);
 
         // 按ID分组数据
         const groupedData = {};
+        materials.forEach(material => {
+            groupedData[material.id] = {
+                id: material.id,
+                current_status: material.current_status,
+                data: []
+            };
+        });
+
+        // 添加详细数据
         rows.forEach(row => {
-            if (!groupedData[row.ID]) {
-                groupedData[row.ID] = {
-                    id: row.ID,
-                    data: []
-                };
+            if (groupedData[row.id]) {
+                groupedData[row.id].data.push({
+                    record_date: row.record_date,
+                    status: row.status,
+                    roi: row.roi,
+                    overall_impressions: row.overall_impressions,
+                    overall_clicks: row.overall_clicks,
+                    overall_ctr: row.overall_ctr,
+                    overall_conversion_rate: row.overall_conversion_rate,
+                    overall_orders: row.overall_orders,
+                    overall_sales: row.overall_sales,
+                    overall_spend: row.overall_spend,
+                    spend_percentage: row.spend_percentage,
+                    basic_spend: row.basic_spend,
+                    cost_per_order: row.cost_per_order
+                });
             }
-            groupedData[row.ID].data.push({
-                record_date: row.record_date,
-                roi: row.roi,
-                overall_impressions: row.overall_impressions,
-                overall_clicks: row.overall_clicks,
-                overall_ctr: row.overall_ctr,
-                overall_conversion_rate: row.overall_conversion_rate,
-                overall_orders: row.overall_orders,
-                overall_sales: row.overall_sales,
-                overall_spend: row.overall_spend,
-                spend_percentage: row.spend_percentage,
-                basic_spend: row.basic_spend,
-                cost_per_order: row.cost_per_order
-            });
         });
 
         // 更新每个ID的数据文件
@@ -76,10 +94,13 @@ async function main() {
 
         await Promise.all(updatePromises);
 
-        // 更新索引文件
+        // 更新索引文件，包含ID和它们的当前状态
         console.log('Updating index file...');
         const indexData = {
-            available_ids: Object.keys(groupedData),
+            materials: materials.map(m => ({
+                id: m.id,
+                current_status: m.current_status
+            })),
             last_updated: new Date().toISOString()
         };
         

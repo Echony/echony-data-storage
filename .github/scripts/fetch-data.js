@@ -2,6 +2,24 @@ const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 const path = require('path');
 
+// 辅助函数：格式化时间为中国时区
+function formatChineseDateTime(date) {
+    const options = {
+        timeZone: 'Asia/Shanghai',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    };
+    return new Date(date).toLocaleString('zh-CN', options);
+}
+
+// 辅助函数：格式化数字为保留两位小数
+function formatNumber(number) {
+    return number === null ? null : Number(number.toFixed(2));
+}
+
 async function ensureDirectoryExists(dirPath) {
     try {
         await fs.access(dirPath);
@@ -21,7 +39,10 @@ async function main() {
         port: process.env.DB_PORT,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME
+        database: process.env.DB_NAME,
+        ssl: {
+            rejectUnauthorized: true
+        }
     });
 
     try {
@@ -33,55 +54,36 @@ async function main() {
         await ensureDirectoryExists(dataDir);
         await ensureDirectoryExists(idsDir);
 
-        // 获取所有活跃的素材ID和它们的当前状态
-        console.log('Fetching active materials...');
-        const [materials] = await connection.execute(
-            'SELECT id, current_status FROM material_info'
+        // 获取最新数据
+        console.log('Fetching data from database...');
+        const [rows] = await connection.execute(
+            'SELECT * FROM material_data WHERE record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ORDER BY record_date DESC'
         );
-
-        // 获取最近24小时的数据记录
-        console.log('Fetching recent data from database...');
-        const [rows] = await connection.execute(`
-            SELECT 
-                d.*,
-                i.current_status
-            FROM material_data d
-            JOIN material_info i ON d.id = i.id
-            WHERE d.record_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-            ORDER BY d.record_date DESC
-        `);
-
-        console.log(`Found ${rows.length} records for ${materials.length} materials`);
+        console.log(`Found ${rows.length} records`);
 
         // 按ID分组数据
         const groupedData = {};
-        materials.forEach(material => {
-            groupedData[material.id] = {
-                id: material.id,
-                current_status: material.current_status,
-                data: []
-            };
-        });
-
-        // 添加详细数据
         rows.forEach(row => {
-            if (groupedData[row.id]) {
-                groupedData[row.id].data.push({
-                    record_date: row.record_date,
-                    status: row.status,
-                    roi: row.roi,
-                    overall_impressions: row.overall_impressions,
-                    overall_clicks: row.overall_clicks,
-                    overall_ctr: row.overall_ctr,
-                    overall_conversion_rate: row.overall_conversion_rate,
-                    overall_orders: row.overall_orders,
-                    overall_sales: row.overall_sales,
-                    overall_spend: row.overall_spend,
-                    spend_percentage: row.spend_percentage,
-                    basic_spend: row.basic_spend,
-                    cost_per_order: row.cost_per_order
-                });
+            if (!groupedData[row.id]) {  // 改为小写的 id
+                groupedData[row.id] = {   // 改为小写的 id
+                    id: row.id,           // 改为小写的 id
+                    data: []
+                };
             }
+            groupedData[row.id].data.push({  // 改为小写的 id
+                record_date: formatChineseDateTime(row.record_date),
+                roi: formatNumber(row.roi),
+                overall_impressions: row.overall_impressions,
+                overall_clicks: row.overall_clicks,
+                overall_ctr: formatNumber(row.overall_ctr),
+                overall_conversion_rate: formatNumber(row.overall_conversion_rate),
+                overall_orders: row.overall_orders,
+                overall_sales: formatNumber(row.overall_sales),
+                overall_spend: formatNumber(row.overall_spend),
+                spend_percentage: formatNumber(row.spend_percentage),
+                basic_spend: formatNumber(row.basic_spend),
+                cost_per_order: formatNumber(row.cost_per_order)
+            });
         });
 
         // 更新每个ID的数据文件
@@ -91,26 +93,20 @@ async function main() {
             await fs.writeFile(filePath, JSON.stringify(data, null, 2));
             console.log(`Updated file for ID: ${id}`);
         });
-
         await Promise.all(updatePromises);
 
-        // 更新索引文件，包含ID和它们的当前状态
+        // 更新索引文件
         console.log('Updating index file...');
         const indexData = {
-            materials: materials.map(m => ({
-                id: m.id,
-                current_status: m.current_status
-            })),
-            last_updated: new Date().toISOString()
+            available_ids: Object.keys(groupedData),
+            last_updated: formatChineseDateTime(new Date())
         };
         
         await fs.writeFile(
             path.join(dataDir, 'index.json'),
             JSON.stringify(indexData, null, 2)
         );
-
         console.log('Data update completed successfully!');
-
     } catch (error) {
         console.error('Error during data update:', error);
         throw error;

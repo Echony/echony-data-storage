@@ -1,0 +1,21 @@
+{
+  "id": "7432934030909259817",
+  "current_status": "跑量素材",
+  "data": [
+    {
+      "record_date": "2024-11-06 18:46:00",
+      "status": "跑量素材",
+      "roi": 1.7899999618530273,
+      "overall_impressions": 1067,
+      "overall_clicks": 50,
+      "overall_ctr": 0.04690000042319298,
+      "overall_conversion_rate": 0.019999999552965164,
+      "overall_orders": 1,
+      "overall_sales": 299,
+      "overall_spend": 166.8300018310547,
+      "spend_percentage": 0.002300000051036477,
+      "basic_spend": 42.2599983215332,
+      "cost_per_order": 166.8300018310547
+    }
+  ]
+}

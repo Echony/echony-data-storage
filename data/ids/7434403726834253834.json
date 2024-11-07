@@ -1,0 +1,21 @@
+{
+  "id": "7434403726834253834",
+  "current_status": "一轮测试",
+  "data": [
+    {
+      "record_date": "2024-11-07 14:37:00",
+      "status": "一轮测试",
+      "roi": 0,
+      "overall_impressions": 0,
+      "overall_clicks": 0,
+      "overall_ctr": 0,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 0,
+      "spend_percentage": 0,
+      "basic_spend": 0,
+      "cost_per_order": 0
+    }
+  ]
+}

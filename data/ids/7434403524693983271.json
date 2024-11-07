@@ -3,6 +3,36 @@
   "current_status": "一轮测试",
   "data": [
     {
+      "record_date": "2024-11-07 16:03:00",
+      "status": "一轮测试",
+      "roi": 0,
+      "overall_impressions": 42,
+      "overall_clicks": 2,
+      "overall_ctr": 0.047600001096725464,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 10.180000305175781,
+      "spend_percentage": 0.00019999999494757503,
+      "basic_spend": 10.180000305175781,
+      "cost_per_order": 0
+    },
+    {
+      "record_date": "2024-11-07 15:56:00",
+      "status": "一轮测试",
+      "roi": 0,
+      "overall_impressions": 39,
+      "overall_clicks": 2,
+      "overall_ctr": 0.05130000039935112,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 9.300000190734863,
+      "spend_percentage": 0.00019999999494757503,
+      "basic_spend": 9.300000190734863,
+      "cost_per_order": 0
+    },
+    {
       "record_date": "2024-11-07 15:48:00",
       "status": "一轮测试",
       "roi": 0,

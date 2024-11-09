@@ -3,6 +3,21 @@
   "current_status": "投放中",
   "data": [
     {
+      "record_date": "2024-11-09 15:02:00",
+      "status": "投放中",
+      "roi": 0,
+      "overall_impressions": 363,
+      "overall_clicks": 15,
+      "overall_ctr": 0.04129999876022339,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 37.95000076293945,
+      "spend_percentage": 0.0005000000237487257,
+      "basic_spend": 37.95000076293945,
+      "cost_per_order": 0
+    },
+    {
       "record_date": "2024-11-09 14:44:00",
       "status": "投放中",
       "roi": 0,

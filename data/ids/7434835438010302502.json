@@ -3,6 +3,21 @@
   "current_status": "一轮测试",
   "data": [
     {
+      "record_date": "2024-11-09 15:04:00",
+      "status": "一轮测试",
+      "roi": 3.8299999237060547,
+      "overall_impressions": 661,
+      "overall_clicks": 37,
+      "overall_ctr": 0.0560000017285347,
+      "overall_conversion_rate": 0.08110000193119049,
+      "overall_orders": 3,
+      "overall_sales": 801.4199829101562,
+      "overall_spend": 224.7100067138672,
+      "spend_percentage": 0.00279999990016222,
+      "basic_spend": 224.7100067138672,
+      "cost_per_order": 74.9000015258789
+    },
+    {
       "record_date": "2024-11-09 14:47:00",
       "status": "一轮测试",
       "roi": 3.890000104904175,

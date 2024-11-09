@@ -1,0 +1,21 @@
+{
+  "id": "7434835469063766043",
+  "current_status": "投放中-阶段放弃",
+  "data": [
+    {
+      "record_date": "2024-11-09 10:07:00",
+      "status": "投放中-阶段放弃",
+      "roi": 0,
+      "overall_impressions": 0,
+      "overall_clicks": 0,
+      "overall_ctr": 0,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 0,
+      "spend_percentage": 0,
+      "basic_spend": 0,
+      "cost_per_order": 0
+    }
+  ]
+}

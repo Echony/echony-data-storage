@@ -1,0 +1,36 @@
+{
+  "id": "7433997123443113993",
+  "current_status": "跑量素材-阶段放弃",
+  "data": [
+    {
+      "record_date": "2024-11-09 10:04:00",
+      "status": "跑量素材",
+      "roi": 2.2300000190734863,
+      "overall_impressions": 12399,
+      "overall_clicks": 353,
+      "overall_ctr": 0.02850000001490116,
+      "overall_conversion_rate": 0.062300000339746475,
+      "overall_orders": 22,
+      "overall_sales": 6386.39990234375,
+      "overall_spend": 2929.340087890625,
+      "spend_percentage": 0.04699999839067459,
+      "basic_spend": 2929.340087890625,
+      "cost_per_order": 133.14999389648438
+    },
+    {
+      "record_date": "2024-11-08 19:31:00",
+      "status": "跑量素材-阶段放弃",
+      "roi": 3.509999990463257,
+      "overall_impressions": 2570,
+      "overall_clicks": 85,
+      "overall_ctr": 0.03310000151395798,
+      "overall_conversion_rate": 0.10589999705553055,
+      "overall_orders": 9,
+      "overall_sales": 2701,
+      "overall_spend": 787.6699829101562,
+      "spend_percentage": 0.010900000110268593,
+      "basic_spend": 787.6699829101562,
+      "cost_per_order": 87.5199966430664
+    }
+  ]
+}

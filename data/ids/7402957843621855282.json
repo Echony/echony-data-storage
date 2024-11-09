@@ -1,0 +1,21 @@
+{
+  "id": "7402957843621855282",
+  "current_status": "投放中",
+  "data": [
+    {
+      "record_date": "2024-11-08 19:46:00",
+      "status": "投放中",
+      "roi": 0,
+      "overall_impressions": 79,
+      "overall_clicks": 1,
+      "overall_ctr": 0.01269999984651804,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 12.130000114440918,
+      "spend_percentage": 0.00019999999494757503,
+      "basic_spend": 12.130000114440918,
+      "cost_per_order": 0
+    }
+  ]
+}

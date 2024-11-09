@@ -1,0 +1,21 @@
+{
+  "id": "7434064601792364598",
+  "current_status": "跑量素材-阶段放弃",
+  "data": [
+    {
+      "record_date": "2024-11-08 19:31:00",
+      "status": "跑量素材-阶段放弃",
+      "roi": 2.2200000286102295,
+      "overall_impressions": 25453,
+      "overall_clicks": 854,
+      "overall_ctr": 0.03359999880194664,
+      "overall_conversion_rate": 0.05040000006556511,
+      "overall_orders": 43,
+      "overall_sales": 12787,
+      "overall_spend": 5813.81982421875,
+      "spend_percentage": 0.08070000261068344,
+      "basic_spend": 5813.81982421875,
+      "cost_per_order": 135.2100067138672
+    }
+  ]
+}

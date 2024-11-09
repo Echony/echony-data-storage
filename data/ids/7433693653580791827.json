@@ -3,6 +3,36 @@
   "current_status": "跑量素材-阶段放弃",
   "data": [
     {
+      "record_date": "2024-11-09 14:09:00",
+      "status": "跑量素材",
+      "roi": 7.150000095367432,
+      "overall_impressions": 459,
+      "overall_clicks": 12,
+      "overall_ctr": 0.026100000366568565,
+      "overall_conversion_rate": 0.16670000553131104,
+      "overall_orders": 2,
+      "overall_sales": 538,
+      "overall_spend": 83.63999938964844,
+      "spend_percentage": 0.0010999999940395355,
+      "basic_spend": 83.63999938964844,
+      "cost_per_order": 41.81999969482422
+    },
+    {
+      "record_date": "2024-11-09 13:53:00",
+      "status": "跑量素材",
+      "roi": 7.150000095367432,
+      "overall_impressions": 458,
+      "overall_clicks": 12,
+      "overall_ctr": 0.026200000196695328,
+      "overall_conversion_rate": 0.16670000553131104,
+      "overall_orders": 2,
+      "overall_sales": 538,
+      "overall_spend": 83.63999938964844,
+      "spend_percentage": 0.0010999999940395355,
+      "basic_spend": 83.63999938964844,
+      "cost_per_order": 41.81999969482422
+    },
+    {
       "record_date": "2024-11-09 13:36:00",
       "status": "跑量素材",
       "roi": 7.159999847412109,

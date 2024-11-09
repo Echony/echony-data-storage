@@ -3,6 +3,36 @@
   "current_status": "一轮测试",
   "data": [
     {
+      "record_date": "2024-11-09 10:48:00",
+      "status": "跑量素材",
+      "roi": 0,
+      "overall_impressions": 847,
+      "overall_clicks": 67,
+      "overall_ctr": 0.07909999787807465,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 256.6499938964844,
+      "spend_percentage": 0.0038999998942017555,
+      "basic_spend": 256.6499938964844,
+      "cost_per_order": 0
+    },
+    {
+      "record_date": "2024-11-09 10:32:00",
+      "status": "跑量素材",
+      "roi": 0,
+      "overall_impressions": 841,
+      "overall_clicks": 64,
+      "overall_ctr": 0.07609999924898148,
+      "overall_conversion_rate": 0,
+      "overall_orders": 0,
+      "overall_sales": 0,
+      "overall_spend": 255.99000549316406,
+      "spend_percentage": 0.004000000189989805,
+      "basic_spend": 255.99000549316406,
+      "cost_per_order": 0
+    },
+    {
       "record_date": "2024-11-09 10:04:00",
       "status": "跑量素材",
       "roi": 0,

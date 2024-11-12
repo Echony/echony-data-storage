@@ -1,66 +1,6 @@
 import mysql from 'mysql2/promise';
 import { Octokit } from '@octokit/rest';
 import { readFile } from 'fs/promises';
-import axios from 'axios';
-
-// 添加云文档同步功能
-async function syncToAirDocs(id, newStatus, retryCount = 3) {
-    const url = process.env.AIRDOCS_URL;
-    const token = process.env.AIRDOCS_TOKEN;
-
-    if (!url || !token) {
-        return {
-            success: false,
-            message: '云文档配置缺失'
-        };
-    }
-
-    const headers = {
-        'AirScript-Token': token,
-        'Content-Type': 'application/json'
-    };
-
-    const data = {
-        Context: {
-            argv: {
-                id: id,
-                status: newStatus
-            }
-        }
-    };
-
-    for (let i = 0; i < retryCount; i++) {
-        try {
-            const response = await axios.post(url, data, { headers });
-            if (response.status === 200) {
-                return {
-                    success: true,
-                    message: '云文档同步成功'
-                };
-            }
-            return {
-                success: false,
-                message: `云文档同步响应异常: ${response.status}`
-            };
-        } catch (error) {
-            if (i === retryCount - 1) {
-                return {
-                    success: false,
-                    message: `云文档同步失败: ${error.message}`
-                };
-            }
-            // 延迟重试
-            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-        }
-    }
-    
-    // 添加默认返回
-    return {
-        success: false,
-        message: '云文档同步超时'
-    };
-}
-
 
 // 解析Issue内容
 function parseIssueBody(body) {
@@ -158,80 +98,32 @@ async function handleDelete(connection, octokit, id) {
 }
 
 // 处理状态更新操作
-async function handleStatusUpdate(connection, octokit, id, newStatus, issueNumber) {
-    let syncResult = null;
-    try {
-        // 开始数据库事务
-        await connection.beginTransaction();
+async function handleStatusUpdate(connection, octokit, id, newStatus) {
+    // 1. 更新数据库
+    await connection.execute(
+        'UPDATE material_info SET current_status = ? WHERE id = ?',
+        [newStatus, id]
+    );
 
-        // 1. 更新数据库
-        await connection.execute(
-            'UPDATE material_info SET current_status = ? WHERE id = ?',
-            [newStatus, id]
+    // 2. 更新GitHub文件
+    const filePath = `data/ids/${id}.json`;
+    const file = await getFileContent(octokit, filePath);
+    if (file) {
+        const data = JSON.parse(file.content);
+        data.current_status = newStatus;
+        await updateGitHubFile(
+            octokit,
+            filePath,
+            data,
+            `Update status for material ${id}`,
+            file.sha
         );
-
-        // 2. 更新GitHub文件
-        const filePath = `data/ids/${id}.json`;
-        const file = await getFileContent(octokit, filePath);
-        if (file) {
-            const data = JSON.parse(file.content);
-            data.current_status = newStatus;
-            await updateGitHubFile(
-                octokit,
-                filePath,
-                data,
-                `Update status for material ${id}`,
-                file.sha
-            );
-        }
-
-        // 3. 更新索引文件
-        await updateIndexFile(octokit, null, { id, newStatus });
-
-        // 4. 同步到云文档
-        syncResult = await syncToAirDocs(id, newStatus);
-
-        // 提交数据库事务
-        await connection.commit();
-
-        // 5. 记录操作结果
-        if (issueNumber) {  // 添加判断
-            const resultMessage = syncResult.success 
-                ? '✅ 状态更新成功，包括云文档同步'
-                : `⚠️ 状态更新成功，但云文档同步失败: ${syncResult.message}`;
-
-            await octokit.issues.createComment({
-                owner: 'Echony',
-                repo: 'echony-data-storage',
-                issue_number: issueNumber,
-                body: resultMessage
-            });
-        }
-
-    } catch (error) {
-        // 回滚数据库事务
-        await connection.rollback();
-        throw error;
     }
 
-    // 如果云文档同步失败，添加一个新的Issue用于追踪
-    if (syncResult && !syncResult.success) {
-        await octokit.issues.create({
-            owner: 'Echony',
-            repo: 'echony-data-storage',
-            title: `[SYNC_FAILED] Material ${id} status sync failed`,
-            body: `
-状态更新操作已完成，但云文档同步失败：
-- 素材ID: ${id}
-- 目标状态: ${newStatus}
-- 错误信息: ${syncResult.message}
-
-请手动检查并同步云文档状态。
-            `,
-            labels: ['sync-failed']
-        });
-    }
+    // 3. 更新索引文件
+    await updateIndexFile(octokit, null, { id, newStatus });
 }
+
 // 主函数
 async function main() {
     let issueNumber = null;
@@ -279,8 +171,7 @@ async function main() {
                     await handleDelete(connection, octokit, operation.id);
                     break;
                 case 'updateStatus':
-                    // 修改这里，传入 issueNumber
-                    await handleStatusUpdate(connection, octokit, operation.id, operation.newStatus, issueNumber);
+                    await handleStatusUpdate(connection, octokit, operation.id, operation.newStatus);
                     break;
                 default:
                     throw new Error('Unknown operation type');
@@ -324,3 +215,5 @@ async function main() {
         process.exit(1);
     }
 }
+
+main().catch(console.error);

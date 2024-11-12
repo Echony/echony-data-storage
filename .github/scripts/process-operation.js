@@ -1,5 +1,6 @@
-const mysql = require('mysql2/promise');
-const { Octokit } = require('@octokit/rest');
+import mysql from 'mysql2/promise';
+import { Octokit } from '@octokit/rest';
+import { readFile } from 'fs/promises';
 
 // 解析Issue内容
 function parseIssueBody(body) {
@@ -125,8 +126,14 @@ async function handleStatusUpdate(connection, octokit, id, newStatus) {
 
 // 主函数
 async function main() {
-    const issueNumber = process.env.GITHUB_EVENT_PATH ? 
-        require(process.env.GITHUB_EVENT_PATH).issue.number : null;
+    let issueNumber = null;
+    
+    if (process.env.GITHUB_EVENT_PATH) {
+        const eventData = JSON.parse(
+            await readFile(process.env.GITHUB_EVENT_PATH, 'utf8')
+        );
+        issueNumber = eventData.issue.number;
+    }
 
     if (!issueNumber) {
         console.error('No issue number found');

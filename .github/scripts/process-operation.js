@@ -141,7 +141,7 @@ async function handleDelete(connection, octokit, id) {
 }
 
 // 处理状态更新操作
-async function handleStatusUpdate(connection, octokit, id, newStatus) {
+async function handleStatusUpdate(connection, octokit, id, newStatus, issueNumber) {
     let syncResult = null;
     try {
         // 开始数据库事务
@@ -261,7 +261,8 @@ async function main() {
                     await handleDelete(connection, octokit, operation.id);
                     break;
                 case 'updateStatus':
-                    await handleStatusUpdate(connection, octokit, operation.id, operation.newStatus);
+                    // 修改这里，传入 issueNumber
+                    await handleStatusUpdate(connection, octokit, operation.id, operation.newStatus, issueNumber);
                     break;
                 default:
                     throw new Error('Unknown operation type');
@@ -305,5 +306,3 @@ async function main() {
         process.exit(1);
     }
 }
-
-main().catch(console.error);

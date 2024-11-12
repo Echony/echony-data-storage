@@ -1,0 +1,33 @@
+name: Handle Data Operations
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  process-operation:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.title, '[DATA_OPERATION]')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install mysql2 @octokit/rest
+          
+      - name: Process Operation
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/process-operation.js

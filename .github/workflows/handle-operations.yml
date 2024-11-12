@@ -21,7 +21,7 @@ jobs:
         run: |
           npm init -y
           npm pkg set type="module"
-          npm install mysql2 @octokit/rest axios
+          npm install mysql2 @octokit/rest
 
       - name: Process Operation
         env:
@@ -31,5 +31,4 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AIRSHEET_TOKEN: ${{ secrets.AIRSHEET_TOKEN }}
         run: node .github/scripts/process-operation.js

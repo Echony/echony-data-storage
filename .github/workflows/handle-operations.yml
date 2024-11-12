@@ -8,20 +8,21 @@ jobs:
   process-operation:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.title, '[DATA_OPERATION]')
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
+
       - name: Install dependencies
         run: |
           npm init -y
+          npm pkg set type="module"
           npm install mysql2 @octokit/rest
-          
+
       - name: Process Operation
         env:
           DB_HOST: ${{ secrets.DB_HOST }}

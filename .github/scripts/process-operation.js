@@ -8,6 +8,13 @@ async function syncToAirDocs(id, newStatus, retryCount = 3) {
     const url = process.env.AIRDOCS_URL;
     const token = process.env.AIRDOCS_TOKEN;
 
+    if (!url || !token) {
+        return {
+            success: false,
+            message: '云文档配置缺失'
+        };
+    }
+
     const headers = {
         'AirScript-Token': token,
         'Content-Type': 'application/json'
@@ -31,6 +38,10 @@ async function syncToAirDocs(id, newStatus, retryCount = 3) {
                     message: '云文档同步成功'
                 };
             }
+            return {
+                success: false,
+                message: `云文档同步响应异常: ${response.status}`
+            };
         } catch (error) {
             if (i === retryCount - 1) {
                 return {
@@ -42,6 +53,12 @@ async function syncToAirDocs(id, newStatus, retryCount = 3) {
             await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
         }
     }
+    
+    // 添加默认返回
+    return {
+        success: false,
+        message: '云文档同步超时'
+    };
 }
 
 
@@ -178,16 +195,18 @@ async function handleStatusUpdate(connection, octokit, id, newStatus, issueNumbe
         await connection.commit();
 
         // 5. 记录操作结果
-        const resultMessage = syncResult.success 
-            ? '✅ 状态更新成功，包括云文档同步'
-            : `⚠️ 状态更新成功，但云文档同步失败: ${syncResult.message}`;
+        if (issueNumber) {  // 添加判断
+            const resultMessage = syncResult.success 
+                ? '✅ 状态更新成功，包括云文档同步'
+                : `⚠️ 状态更新成功，但云文档同步失败: ${syncResult.message}`;
 
-        await octokit.issues.createComment({
-            owner: 'Echony',
-            repo: 'echony-data-storage',
-            issue_number: issueNumber,
-            body: resultMessage
-        });
+            await octokit.issues.createComment({
+                owner: 'Echony',
+                repo: 'echony-data-storage',
+                issue_number: issueNumber,
+                body: resultMessage
+            });
+        }
 
     } catch (error) {
         // 回滚数据库事务
@@ -213,7 +232,6 @@ async function handleStatusUpdate(connection, octokit, id, newStatus, issueNumbe
         });
     }
 }
-
 // 主函数
 async function main() {
     let issueNumber = null;
